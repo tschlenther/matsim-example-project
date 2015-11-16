@@ -19,11 +19,20 @@
 package org.matsim.example;
 
 import org.matsim.api.core.v01.Scenario;
+import org.matsim.contrib.otfvis.OTFVis;
 import org.matsim.core.config.Config;
 import org.matsim.core.config.ConfigUtils;
+import org.matsim.core.controler.AbstractModule;
 import org.matsim.core.controler.Controler;
 import org.matsim.core.controler.OutputDirectoryHierarchy.OverwriteFileSetting;
+import org.matsim.core.mobsim.framework.Mobsim;
+import org.matsim.core.mobsim.qsim.QSim;
+import org.matsim.core.mobsim.qsim.QSimUtils;
 import org.matsim.core.scenario.ScenarioUtils;
+import org.matsim.core.trafficmonitoring.FreeSpeedTravelTime;
+import org.matsim.vis.otfvis.OnTheFlyServer;
+
+import com.google.inject.Provider;
 
 /**
  * @author nagel
@@ -34,16 +43,34 @@ public class HelloWorld {
 	public static void main(String[] args) {
 		
 		// This creates a default matsim config:
-		Config config = ConfigUtils.createConfig();
+		final Config config = ConfigUtils.createConfig();
 		
 		config.controler().setLastIteration(1);
 		config.controler().setOverwriteFileSetting( OverwriteFileSetting.deleteDirectoryIfExists );
 
 		// This creates a default matsim scenario (which is empty):
-		Scenario scenario = ScenarioUtils.createScenario(config) ;
+		final Scenario scenario = ScenarioUtils.createScenario(config) ;
 
-		Controler controler = new Controler( scenario ) ;
+		final Controler controler = new Controler( scenario ) ;
+		//empty comment
+		controler.addOverridingModule(new AbstractModule() {
+			
+			@Override
+			public void install() {
+//				bindTravelDisutilityFactory().toInstance(new FreeSpeedTravelTime());
+				this.bindMobsim().toProvider(new Provider<Mobsim>(){
 
+					@Override
+					public Mobsim get() {
+						QSim qsim = QSimUtils.createDefaultQSim(scenario, controler.getEvents());
+						OnTheFlyServer server = OTFVis.startServerAndRegisterWithQSim(config,scenario,controler.getEvents(),qsim);
+						return qsim;
+					}
+							
+				} );
+			}
+		});
+		
 		// This indeed runs iterations, but based on an empty scenario:
 		controler.run();
 
