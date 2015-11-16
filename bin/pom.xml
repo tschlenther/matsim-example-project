@@ -35,16 +35,6 @@
 		<!-- use the snapshot if you want to program against the development version 
 		     (the "SNAPSHOT" means that it will be automatically updated) -->
 		</dependency>
-		<dependency>
-			<groupId>org.matsim.contrib</groupId>
-			<artifactId>otfvis</artifactId>
-			<version>0.8.0-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.12</version>
-		</dependency>
 	</dependencies>
 
 	<build>

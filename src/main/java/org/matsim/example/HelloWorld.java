@@ -52,7 +52,6 @@ public class HelloWorld {
 		final Scenario scenario = ScenarioUtils.createScenario(config) ;
 
 		final Controler controler = new Controler( scenario ) ;
-		//empty comment
 		controler.addOverridingModule(new AbstractModule() {
 			
 			@Override
