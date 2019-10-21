@@ -16,63 +16,50 @@
  *   See also COPYING, LICENSE and WARRANTY file                           *
  *                                                                         *
  * *********************************************************************** */
-package org.matsim.example;
+package org.matsim.project;
 
 import org.matsim.api.core.v01.Scenario;
-import org.matsim.contrib.otfvis.OTFVis;
 import org.matsim.core.config.Config;
 import org.matsim.core.config.ConfigUtils;
-import org.matsim.core.controler.AbstractModule;
 import org.matsim.core.controler.Controler;
-import org.matsim.core.controler.OutputDirectoryHierarchy.OverwriteFileSetting;
-import org.matsim.core.mobsim.framework.Mobsim;
-import org.matsim.core.mobsim.qsim.QSim;
-import org.matsim.core.mobsim.qsim.QSimUtils;
+import org.matsim.core.gbl.Gbl;
 import org.matsim.core.scenario.ScenarioUtils;
-import org.matsim.core.trafficmonitoring.FreeSpeedTravelTime;
-import org.matsim.vis.otfvis.OnTheFlyServer;
-
-import com.google.inject.Provider;
 
 /**
  * @author nagel
  *
  */
-public class HelloWorld {
+public class RunMatsim{
 
 	public static void main(String[] args) {
-		
-		// This creates a default matsim config:
-		final Config config = ConfigUtils.createConfig();
-		
-		config.controler().setLastIteration(1);
-		config.controler().setOverwriteFileSetting( OverwriteFileSetting.deleteDirectoryIfExists );
+		if ( args.length==0 ) {
+			args = new String [] { "scenarios/equil/config.xml" } ;
+			// to make sure that something is run by default; better start from MATSimGUI.
+		} else {
+			Gbl.assertIf( args[0] != null && !args[0].equals( "" ) );
+		}
 
-		// This creates a default matsim scenario (which is empty):
-		final Scenario scenario = ScenarioUtils.createScenario(config) ;
-
-		final Controler controler = new Controler( scenario ) ;
-		controler.addOverridingModule(new AbstractModule() {
-			
-			@Override
-			public void install() {
-//				bindTravelDisutilityFactory().toInstance(new FreeSpeedTravelTime());
-				this.bindMobsim().toProvider(new Provider<Mobsim>(){
-
-					@Override
-					public Mobsim get() {
-						QSim qsim = QSimUtils.createDefaultQSim(scenario, controler.getEvents());
-						OnTheFlyServer server = OTFVis.startServerAndRegisterWithQSim(config,scenario,controler.getEvents(),qsim);
-						return qsim;
-					}
-							
-				} );
-			}
-		});
+		Config config = ConfigUtils.loadConfig( args ) ;
 		
-		// This indeed runs iterations, but based on an empty scenario:
+		// possibly modify config here
+		
+		// ---
+		
+		Scenario scenario = ScenarioUtils.loadScenario(config) ;
+		
+		// possibly modify scenario here
+		
+		// ---
+		
+		Controler controler = new Controler( scenario ) ;
+		
+		// possibly modify controler here
+
+//		controler.addOverridingModule( new OTFVisLiveModule() ) ;
+		
+		// ---
+		
 		controler.run();
-
 	}
-
+	
 }
